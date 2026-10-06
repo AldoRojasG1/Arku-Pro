@@ -1,0 +1,16 @@
+.git
+.github
+.idea
+.vscode
+node_modules
+vendor
+.env
+.env.backup
+.phpunit.result.cache
+tests
+npm-debug.log
+yarn-error.log
+public/hot
+public/storage
+storage/*.key
+
