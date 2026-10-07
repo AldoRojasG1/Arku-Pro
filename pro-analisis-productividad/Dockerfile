@@ -9,11 +9,10 @@ RUN npm run build
 # Stage 2: PHP Application
 FROM php:8.3-fpm
 
-# Install system dependencies
+# Install only essential system dependencies (lightweight)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
-    libpng-dev \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
@@ -27,18 +26,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install PHP extensions installer
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# Install PHP extensions required by Laravel, SQLite, MySQL and ML libraries
+# Install only PHP extensions strictly required by Laravel (lightweight set)
 RUN install-php-extensions \
     pdo_mysql \
     pdo_sqlite \
     sqlite3 \
     bcmath \
-    ctype \
-    curl \
-    dom \
-    fileinfo \
-    gd \
-    intl \
     mbstring \
     opcache \
     pcntl \
@@ -78,4 +71,3 @@ EXPOSE 9000
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
-
