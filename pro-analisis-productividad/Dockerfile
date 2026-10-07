@@ -6,38 +6,32 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 2: PHP Application
+# Stage 2: PHP Application (usa extensiones nativas sin cmake)
 FROM php:8.3-fpm
 
-# Install only essential system dependencies (lightweight)
+# Solo librerías mínimas indispensables del sistema
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
-    curl \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
     zip \
     unzip \
+    libzip-dev \
+    libonig-dev \
     sqlite3 \
     libsqlite3-dev \
     default-mysql-client \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions installer
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-
-# Install only PHP extensions strictly required by Laravel (lightweight set)
-RUN install-php-extensions \
+# Instalar extensiones con el comando nativo de PHP (no descarga cmake)
+# Nota: pdo_sqlite, sqlite3, dom, xml, ctype, curl, fileinfo, mbstring,
+# openssl, sodium, tokenizer ya vienen incluidas en php:8.3-fpm
+RUN docker-php-ext-install \
     pdo_mysql \
-    pdo_sqlite \
-    sqlite3 \
     bcmath \
-    mbstring \
-    opcache \
     pcntl \
-    sodium \
-    xml \
     zip
+
+# Activar opcache (ya está compilada, solo habilitarla)
+RUN docker-php-ext-enable opcache
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
